@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <script>
+        function shortenUrl(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const urlInput = document.getElementById('url-input').value;
+
+            fetch('/shorten', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ url: urlInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const shortUrlDisplay = document.getElementById('short-url');
+                const copyButton = document.getElementById('copy-button');
+                const shortUrlLink = document.getElementById('short-url-link');
+
+                // Use window.location.origin to get the base URL
+                const shortUrl = `${window.location.origin}/${data.short_url}`;
+                shortUrlDisplay.value = shortUrl;
+                shortUrlLink.href = shortUrl; // Set the href for the link
+                shortUrlLink.innerText = shortUrl; // Set the link text
+
+                shortUrlDisplay.style.display = 'block'; // Show the short URL input
+                shortUrlLink.style.display = 'block'; // Show the link
+                copyButton.style.display = 'inline'; // Show the copy button
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function copyToClipboard() {
+            const shortUrl = document.getElementById('short-url');
+            shortUrl.select();
+            document.execCommand('copy');
+            alert('Short URL copied to clipboard!');
+        }
+    </script>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="background-color: #007bff; height: 60px; display: flex; align-items: center; justify-content: center;">
+        <h1 style="color: white; margin: 0;">URL Shortener</h1>
+    </div>
+    
+    <div style="max-width: 500px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+        <form onsubmit="shortenUrl(event)" style="display: flex; flex-direction: column;">
+            <input type="text" id="url-input" placeholder="Enter your long URL" required style="padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
+            <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 16px;">Shorten</button>
+        </form>
+        
+        <br>
+        <input type="text" id="short-url" style="display: none; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;" readonly>
+        <a id="short-url-link" href="#" target="_blank" style="display: none; padding: 10px; text-decoration: none; color: #007bff; font-size: 16px;">Short URL</a>
+        <button id="copy-button" onclick="copyToClipboard()" style="display: none; background-color: #28a745; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px;">Copy Short URL</button>
+    </div>
+</body>
+</html>
